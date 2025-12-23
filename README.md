@@ -149,7 +149,6 @@ python app.py
 ## Future Enhancements
 
 * Expansion of idiom database
-* Integration of OCR for image-based text input
 * Speech-to-text and text-to-speech support
 * Machine learning-based idiom detection
 * Mobile application deployment
