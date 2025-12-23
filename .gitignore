@@ -1,0 +1,15 @@
+# Secrets (NEVER upload these)
+.env
+
+# Python compilation files
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# IDE settings
+.vscode/
+.idea/

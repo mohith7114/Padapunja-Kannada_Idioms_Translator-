@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ಪದಪುಂಜ - KANNADA IDIOMS TRANSLATOR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .kannada-font { font-family: 'Noto Sans Kannada', sans-serif; }
+    .highlight { background-color: #fef08a; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
+    #sidebar { transition: transform 0.3s ease-in-out; }
+    #output::-webkit-scrollbar { width: 8px; }
+    #output::-webkit-scrollbar-track { background: #f1f5f9; }
+    #output::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    #output::-webkit-scrollbar-thumb:hover { background: #64748b; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
+
+  <header class="bg-white shadow-md sticky top-0 z-40" style="background-color: #70adfb;">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-4">
+        <button id="menu-toggle" class="text-slate-600 hover:text-blue-600 focus:outline-none" style="color: #f1f5f9;">
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <h1 id="title" class="text-2xl font-bold text-slate-800">
+          <span style="color: #f1f5f9;">ಪದಪುಂಜ</span>
+        </h1>
+      </div>
+      <div class="hidden md:block">
+        <h2 class="text-lg font-semibold" style="color: #f1f5f9;">KANNADA IDIOMS TRANSLATOR</h2>
+      </div>
+    </div>
+  </header>
+
+<div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50 transform -translate-x-full">
+  <div class="p-5 border-b border-slate-200 flex justify-between items-center">
+    <h3 class="font-bold text-lg text-blue-600">Menu</h3>
+    <button id="close-menu" class="text-slate-500 hover:text-slate-800">
+      <i class="fas fa-times text-xl"></i>
+    </button>
+  </div>
+  <nav id="sidebar-nav" class="p-2 space-y-1">
+
+    <div class="px-4 py-3 border-b border-slate-200 mb-3">
+    <p class="text-sm font-semibold text-slate-700 truncate">{{ session.get('email', 'guest@example.com') }}</p>
+    <p class="text-xs text-slate-500">
+      {% if session.get('admin_logged_in') %}
+        Admin
+      {% elif session.get('user_logged_in') %}
+        User
+      {% else %}
+        Guest
+      {% endif %}
+    </p>
+  </div>
+
+    <button onclick="speakOutput()" class="w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-slate-100 hover:text-blue-600 rounded-md transition-colors">
+      <i class="fas fa-volume-up w-5 text-center"></i><span>Speak Output</span>
+    </button>
+
+    <button onclick="startMic()" class="w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-slate-100 hover:text-blue-600 rounded-md transition-colors">
+      <i class="fas fa-microphone w-5 text-center"></i><span>Mic Input</span>
+    </button>
+
+    <button onclick="loadHistory()" class="w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-slate-100 hover:text-blue-600 rounded-md transition-colors">
+      <i class="fas fa-history w-5 text-center"></i><span>Show History</span>
+    </button>
+
+    <div class="pt-2 mt-2 border-t border-slate-200 space-y-1">
+      <button onclick="alert('Quiz mode coming soon!')" class="w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-slate-100 hover:text-blue-600 rounded-md transition-colors">
+        <i class="fas fa-question-circle w-5 text-center"></i><span>Quiz Mode</span>
+      </button>
+
+      <button onclick="showSuggestionForm()" class="w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-slate-100 hover:text-blue-600 rounded-md transition-colors">
+  <i class="fas fa-lightbulb w-5 text-center"></i><span>Suggest Idiom</span>
+</button>
+
+      <button onclick="showFeedbackForm()" class="w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-slate-100 hover:text-blue-600 rounded-md transition-colors">
+        <i class="fas fa-comment-dots w-5 text-center"></i><span>Feedback</span>
+      </button>
+
+      <button onclick="alert('Share: https://padapunja.example.com')" class="w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-slate-100 hover:text-blue-600 rounded-md transition-colors">
+        <i class="fas fa-share-alt w-5 text-center"></i><span>Share</span>
+      </button>
+
+      {% if session.get("admin_logged_in") %}
+      <button onclick="window.open('/admin', '_blank')" 
+              class="w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-slate-100 hover:text-blue-600 rounded-md transition-colors">
+        <i class="fas fa-shield-alt w-5 text-center"></i><span>Admin Panel</span>
+      </button>
+      {% endif %}
+
+
+      <button onclick="window.location.href='/logout'"
+        class="w-full flex items-center space-x-3 px-3 py-2.5 text-white rounded-md mt-4 transition-colors"
+        style="background-color: #70adfb;">
+    <i class="fas fa-sign-out-alt w-5 text-center"></i>
+    <span>Sign out</span>
+</button>
+
+    </div>
+  </nav>
+</div>
+
+  <main class="flex-1 p-4 lg:p-8">
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+          <label for="inputText" class="block text-lg font-semibold mb-3 text-slate-700">Enter Kannada Sentence</label>
+          <textarea id="inputText" class="w-full h-64 p-4 bg-slate-50 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 kannada-font text-lg" placeholder="ಇಲ್ಲಿ ಕನ್ನಡ ವಾಕ್ಯವನ್ನು ಟೈಪ್ ಮಾಡಿ..."></textarea>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+          <h3 class="text-lg font-semibold mb-3 text-slate-700">Translation & Explanation</h3>
+
+          <div class="flex border-b mb-2">
+            <button id="tab-kn" class="px-4 py-2 text-blue-600 font-semibold border-b-2 border-blue-600">Kannada</button>
+            <button id="tab-en" class="px-4 py-2 text-slate-500 hover:text-blue-600">English</button>
+          </div>
+
+          <div id="output" class="w-full h-64 p-4 bg-slate-50 border border-slate-200 rounded-lg overflow-y-auto space-y-3 text-slate-700">
+            <div class="text-center text-slate-400 pt-16">
+              <i class="fas fa-language text-4xl"></i>
+              <p class="mt-2">Your translation will appear here.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+          <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="text-xl font-bold">Search History</h3>
+            <div class="flex space-x-2">
+              <button onclick="clearSelectedHistory()" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete Selected</button>
+              <button onclick="clearHistory()" class="bg-red-700 text-white px-3 py-1 rounded hover:bg-red-800">Clear All</button>
+            </div>
+            <button onclick="toggleModal('history-modal', false)" class="ml-3 text-slate-500 hover:text-slate-800">&times;</button>
+          </div>
+          <div id="history" class="p-6 overflow-y-auto space-y-4"></div>
+        </div>
+      </div>
+
+      <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+          <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="text-xl font-bold">Submit Feedback</h3>
+            <button onclick="toggleModal('feedback-modal', false)" class="text-slate-500 hover:text-slate-800">&times;</button>
+          </div>
+          <div class="p-6">
+            <textarea id="feedbackText" placeholder="Write your feedback here..." class="w-full h-32 p-3 bg-slate-50 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+            <div class="mt-4 flex justify-end">
+              <button onclick="submitFeedback()" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="suggestion-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+    <div class="p-4 border-b flex justify-between items-center">
+      <h3 class="text-xl font-bold">Suggest a New Idiom</h3>
+      <button onclick="toggleModal('suggestion-modal', false)" class="text-slate-500 hover:text-slate-800">&times;</button>
+    </div>
+    <div class="p-6 space-y-4">
+      
+      <div>
+        <label class="block text-sm font-bold mb-1">Kannada Idiom</label>
+        <input type="text" id="suggestIdiom" class="w-full p-2 border rounded bg-slate-50" placeholder="Example: ಕೈ ಚೆಲ್ಲು">
+      </div>
+
+      <div>
+        <label class="block text-sm font-bold mb-1">English Meaning</label>
+        <input type="text" id="suggestMeaning" class="w-full p-2 border rounded bg-slate-50" placeholder="Example: To give up">
+      </div>
+
+      <div>
+        <label class="block text-sm font-bold mb-1">Kannada Explanation/Example</label>
+        <textarea id="suggestExample" class="w-full p-2 border rounded bg-slate-50 h-24" placeholder="Brief explanation in Kannada..."></textarea>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="submitSuggestion()" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700">Submit Suggestion</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </div>
+  </main>
+
+  <footer class="bg-white text-center p-4 border-t" style="background-color: #70adfb;">
+    <p class="text-sm kannada-font mb-1" style="color:#f1f5f9;">ಧನ್ಯವಾದಗಳು......</p>
+    <p class="text-sm" style="color: #f1f5f9;">2025 Padapunja - Kannada Idioms Translator</p>
+  </footer>
+
+ <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

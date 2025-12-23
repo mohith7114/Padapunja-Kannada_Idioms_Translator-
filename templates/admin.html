@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - ಪದಪುಂಜ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #f7faff; }
+    .header { background-color: #70adfb; color: white; padding: 20px; text-align: center; font-size: 24px; font-weight: 600; }
+    .container { padding: 20px; max-width: 1000px; margin: 0 auto; }
+    h2, h3 { color: #333; margin-top: 0; border-bottom: 2px solid #e9f2fb; padding-bottom: 10px; margin-bottom: 15px; }
+    .table-responsive { overflow-x: auto; max-height: 400px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    table, th, td { border: 1px solid #ccc; }
+    th, td { padding: 10px; text-align: left; }
+    th { background-color: #e9f2fb; position: sticky; top: 0; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    tr:hover { background: #f1f7ff; }
+    .btn { padding: 6px 12px; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 14px; margin: 4px 6px 0 0; text-decoration: none; display: inline-block; }
+    .btn-success { background-color: #28a745; }
+    .btn-danger { background-color: #dc3545; }
+    .btn-primary { background-color: #70adfb; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="header">ಪದಪುಂಜ - Admin Dashboard</div>
+  <div class="container">
+
+    <div class="card">
+      <h3>Actions</h3>
+      <div class="btn-group">
+        <a href="{{ url_for('main.download_admin_history_json') }}" class="btn btn-primary">Download JSON</a>
+        
+        <a href="{{ url_for('main.export_tsv') }}" class="btn btn-success">Export TSV</a>
+        
+        <form action="{{ url_for('main.clear_admin_history') }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+          <button type="submit" class="btn btn-danger">Clear Search History</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>User Feedback</h3>
+      {% if feedback %}
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>Timestamp</th><th>Email</th><th>Feedback Content</th></tr></thead>
+            <tbody>
+              {% for item in feedback %}
+              <tr>
+                <td>{{ item.timestamp|datetimeformat }}</td>
+                <td>{{ item.email }}</td>
+                <td>{{ item.message }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>No feedback submitted yet.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h3>Search History</h3>
+      {% if history %}
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>User Email</th>
+                <th>Query (Sentence)</th>
+                <th>Matched Idiom</th>
+                <th>Translation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in history %}
+              <tr>
+                <td>{{ item.timestamp|datetimeformat }}</td>
+                <td>{{ item.email or 'Anonymous' }}</td>
+                <td>{{ item.original_sentence }}</td> 
+                <td>{{ item.idiom or 'None' }}</td>
+                <td>{{ item.translation }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>No history available.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h3>Idiom Suggestions</h3>
+      {% if suggestions %}
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Idiom</th>
+                <th>Explanation (Kannada)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in suggestions %}
+              <tr>
+                <td>{{ item.idiom }}</td>
+                <td>{{ item.explanation_kannada }}</td>
+                <td>
+                  <form action="{{ url_for('main.approve_idiom') }}" method="POST" style="display:inline;">
+                      <input type="hidden" name="id" value="{{ item.id }}">
+                      <button type="submit" class="btn btn-success">
+                          <i class="fas fa-check"></i> Approve
+                      </button>
+                  </form>
+
+                  <form action="{{ url_for('main.reject_idiom') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="idiom" value="{{ item.idiom }}">
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>No new suggestions.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</body>
+</html>
